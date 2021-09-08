@@ -27,9 +27,12 @@ folder list: "program files (x86)", "$windows.~ws", "msocache", "boot", "program
 extension list: "cur", "diagcab", "cab", "idx", "diagcfg", "hlp", "theme", "rtp", "ldf", "msp", "mod", "drv", "lock", "ico", "lnk", "icns", "wpx", "shs", "icl", "msc", "diagpkg", "msu", "adv", "pdb", "mpa", "msstyles", "scr", "key", "dll", "nls", "cmd", "hta", "ocx", "sys", "ics", "ani", "cpl", "deskthemepack", "exe", "386", "themepack", "ps1", "nomedia", "com", "spl", "rom", "bat", "prf", "bin", "msi"
 
 Public key crypto: Curve25519
-- Operator: [191 145 93 226 52 69 63 94 153 130 232 193 74 144 81 137 132 134 145 160 130 210 154 23 221 139 188 40 59 38 146 143]
-- Config/Campaign: [50 31 93 144 176 61 126 76 93 239 48 168 25 113 29 184 139 191 9 103 60 142 175 180 90 137 26 48 51 80 158 32]
-
+- Operator: [76 161 82 116 123 68 30 82 26 83 187 44 145 192 7 27 240 190 189 91 201 203 238 105 64 224 250 4 177 180 241 217]
+  - Public key: [67 78 117 70 95 48 99 15 164 175 205 170 153 242 42 156 14 95 64 61 53 91 45 31 249 223 126 228 151 14 167 35]
+- Config/Campaign: [240 210 131 116 9 50 241 129 26 247 242 244 237 224 58 0 39 254 84 75 108 78 160 58 180 44 255 190 253 203 139 132]
+  - Public Key: [121 255 160 49 104 254 213 18 97 27 75 192 146 104 251 41 37 72 43 246 200 134 120 74 61 175 222 154 182 134 224 94]
+- Small Data Encryption: [103 203 132 4 91 2 9 230 151 156 179 131 14 20 33 228 14 178 254 13 129 89 226 26 217 1 154 117 62 99 250 149]
+  - Public Key: [228 146 2 131 232 4 66 231 5 189 21 177 122 31 28 192 228 95 74 152 57 150 237 254 201 234 47 69 189 73 9 20]
 Asymmetric: modified ChaCha20 (own implementation)
 
 TODO:

