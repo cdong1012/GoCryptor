@@ -26,6 +26,12 @@ folder list: "program files (x86)", "$windows.~ws", "msocache", "boot", "program
 
 extension list: "cur", "diagcab", "cab", "idx", "diagcfg", "hlp", "theme", "rtp", "ldf", "msp", "mod", "drv", "lock", "ico", "lnk", "icns", "wpx", "shs", "icl", "msc", "diagpkg", "msu", "adv", "pdb", "mpa", "msstyles", "scr", "key", "dll", "nls", "cmd", "hta", "ocx", "sys", "ics", "ani", "cpl", "deskthemepack", "exe", "386", "themepack", "ps1", "nomedia", "com", "spl", "rom", "bat", "prf", "bin", "msi"
 
-Public key crypto: Curve25519 (translate c to go)
+Public key crypto: Curve25519
+- Operator: [191 145 93 226 52 69 63 94 153 130 232 193 74 144 81 137 132 134 145 160 130 210 154 23 221 139 188 40 59 38 146 143]
+- Config/Campaign: [50 31 93 144 176 61 126 76 93 239 48 168 25 113 29 184 139 191 9 103 60 142 175 180 90 137 26 48 51 80 158 32]
 
 Asymmetric: modified ChaCha20 (own implementation)
+
+TODO:
+- Add Curve25519 key to config
+- ChaCha20
