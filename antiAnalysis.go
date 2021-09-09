@@ -25,12 +25,15 @@ func MessageBoxPlain(title, caption string) int {
 }
 
 // string hashing
-
-func bufferHashing(target []byte) uint64 {
-	var result uint64 = 0
+func bufferHashing(target []byte) uint32 {
+	var result uint32 = 0
 
 	for each := range target {
-		result = ((result + uint64(each)) % 0xf6) ^ uint64(each)
+		result = uint32(each) + ror(result, 13)
 	}
 	return result
+}
+
+func ror(input uint32, bits uint32) uint32 {
+	return (input >> bits) | (input << (32 - bits))
 }

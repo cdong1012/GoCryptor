@@ -1,61 +1,28 @@
-proc_list = [ "ps1",
-      "ldf",
-      "lock",
-      "theme",
-      "msi",
-      "sys",
-      "wpx",
-      "cpl",
-      "adv",
-      "msc",
-      "scr",
-      "bat",
-      "key",
-      "ico",
-      "dll",
-      "hta",
-      "deskthemepack",
-      "nomedia",
-      "msu",
-      "rtp",
-      "msp",
-      "idx",
-      "ani",
-      "386",
-      "diagcfg",
-      "bin",
-      "mod",
-      "ics",
-      "com",
-      "hlp",
-      "spl",
-      "nls",
-      "cab",
-      "exe",
-      "diagpkg",
-      "icl",
-      "ocx",
-      "rom",
-      "prf",
-      "themepack",
-      "msstyles",
-      "lnk",
-      "icns",
-      "mpa",
-      "drv",
-      "cur",
-      "diagcab",
-      "cmd",
-      "shs"]
+# func bufferHashing(target []byte) uint64 {
+# 	var result uint64 = 0
 
-proc_list2 = ["themepack","nls","diagpkg","msi","lnk","exe","cab","scr","bat","drv","rtp","msp","prf","msc","ico","key","ocx","diagcab","diagcfg","pdb","wpx","hlp","icns","rom","dll","msstyles","mod","ps1","ics","hta","bin","cmd","ani","386","lock","cur","idx","sys","com","deskthemepack","shs","ldf","theme","mpa","nomedia","spl","cpl","adv","icl","msu"]
+# 	for each := range target {
+# 		result = ((result + uint64(each)) % 0xf6) ^ uint64(each)
+# 	}
+# 	return result
+# }
 
-result = set()
+# uint64_t ror(uint64_t v, unsigned int bits) 
+# {
+#     return (v>>bits) | (v<<(8*sizeof(uint64_t)-bits));
+# }
 
-for each in proc_list:
-    result.add(each)
+def ror(v, bits):
+    return (v>>bits) | (v<<(32-bits))
     
-for each in proc_list2:
-    result.add(each)
-    
-print(result)
+
+def bufferHashing(target):
+    result = 0
+    for each in target:
+        result = ord(each) + ror(result, 15)
+        
+    return result
+
+print(hex(bufferHashing("thebat")))
+print(hex(bufferHashing("dssds")))
+print("   _____        _____                  _             \n  / ____|      / ____|                | |            \n | |  __  ___ | |     _ __ _   _ _ __ | |_ ___  _ __ \n | | |_ |/ _ \| |    | '__| | | | '_ \| __/ _ \| '__|\n | |__| | (_) | |____| |  | |_| | |_) | || (_) | |   \n  \_____|\___/ \_____|_|   \__, | .__/ \__\___/|_|   \n                            __/ | |                  \n                           |___/|_|                  --> Your ID: %s\n--> Your key: %x\n")
