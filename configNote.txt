@@ -26,5 +26,4 @@ Public key crypto: Curve25519
 Asymmetric: modified ChaCha20 (own implementation)
 
 TODO:
-- Add Curve25519 key to config
 - ChaCha20
