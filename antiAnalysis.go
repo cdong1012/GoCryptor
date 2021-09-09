@@ -28,7 +28,7 @@ func MessageBoxPlain(title, caption string) int {
 func bufferHashing(target []byte) uint32 {
 	var result uint32 = 0
 
-	for each := range target {
+	for _, each := range target {
 		result = uint32(each) + ror(result, 13)
 	}
 	return result

