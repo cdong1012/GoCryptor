@@ -1,6 +1,7 @@
 package main
 
 import (
+	"hash/crc32"
 	"math/rand"
 
 	"golang.org/x/crypto/curve25519"
@@ -10,12 +11,14 @@ var OperatorPubKey = [32]byte{67, 78, 117, 70, 95, 48, 99, 15, 164, 175, 205, 17
 
 var SmallDataPubKey = [32]byte{228, 146, 2, 131, 232, 4, 66, 231, 5, 189, 21, 177, 122, 31, 28, 192, 228, 95, 74, 152, 57, 150, 237, 254, 201, 234, 47, 69, 189, 73, 9, 20}
 
+// Curve25519 generating public key from private key
 func generatePublicKey(privateKey [32]byte) [32]byte {
 	var publicKey [32]byte
 	curve25519.ScalarBaseMult(&publicKey, &privateKey)
 	return publicKey
 }
 
+// generate a buffer with a set amount of random bytes
 func generateRandomBuffer(n int) []byte {
 	var result []byte
 	for i := 0; i < n; i++ {
@@ -23,6 +26,9 @@ func generateRandomBuffer(n int) []byte {
 	}
 	return result
 }
+
+// Curve25519 generating shared secret
+// Takes in private key -> public key
 func generateSharedSecret(myPrivateKey [32]byte, theirPublicKey [32]byte) []byte {
 	var sharedSecret [32]byte
 	curve25519.ScalarMult(&sharedSecret, &myPrivateKey, &theirPublicKey)
@@ -45,3 +51,9 @@ func generateSharedSecret(myPrivateKey [32]byte, theirPublicKey [32]byte) []byte
 
 // fmt.Println("Shared secret 1: ", sharedSecret1)
 // fmt.Println("Shared secret 2: ", sharedSecret2)
+
+// CRC32 generating checksum
+func crc32Checksum(input []byte, polynomial uint32) uint32 {
+	crc32q := crc32.MakeTable(polynomial)
+	return crc32.Checksum(input, crc32q)
+}
