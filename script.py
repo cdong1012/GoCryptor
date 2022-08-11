@@ -1,28 +1,19 @@
-# func bufferHashing(target []byte) uint64 {
-# 	var result uint64 = 0
-
-# 	for each := range target {
-# 		result = ((result + uint64(each)) % 0xf6) ^ uint64(each)
-# 	}
-# 	return result
-# }
-
-# uint64_t ror(uint64_t v, unsigned int bits) 
-# {
-#     return (v>>bits) | (v<<(8*sizeof(uint64_t)-bits));
-# }
-
-def ror(v, bits):
-    return (v>>bits) | (v<<(32-bits))
-    
-
-def bufferHashing(target):
-    result = 0
-    for each in target:
-        result = ord(each) + ror(result, 15)
-        
+def decrypt(buffer):
+    result = ''
+    for each in buffer:
+        temp = each + 0x100
+        result += chr((temp - 0x9c) & 0xff)
     return result
 
-print(hex(bufferHashing("thebat")))
-print(hex(bufferHashing("dssds")))
-print("   _____        _____                  _             \n  / ____|      / ____|                | |            \n | |  __  ___ | |     _ __ _   _ _ __ | |_ ___  _ __ \n | | |_ |/ _ \| |    | '__| | | | '_ \| __/ _ \| '__|\n | |__| | (_) | |____| |  | |_| | |_) | || (_) | |   \n  \_____|\___/ \_____|_|   \__, | .__/ \__\___/|_|   \n                            __/ | |                  \n                           |___/|_|                  --> Your ID: %s\n--> Your key: %x\n")
+print(decrypt([0xF3,0x04,0x05,0x10,0x01,0xE4,0xFD,0x10,0x17,0xE0,0xCF,0xFF,0x0E,0x15,0x0C,0x10,0xFB,0x09,0x01,0xFB,0xFD,0x04,0x05,0x04,0x05,0x19]))
+
+
+buffer = [  0x5E, 0x61, 0x60, 0x7D, 0x6C, 0x41, 0x68, 0x7D, 0x4A, 0x66, 
+  0x7F, 0x60, 0x6D, 0x38, 0x30, 0x5A, 0x68, 0x66, 0x42, 0x6C, 
+  0x7D, 0x61, 0x68, 0x67, 0x61, 0x79, 0x61, 0x66, 0x41, 0x68, 
+  0x67, 0x66, 0x60, 0x64, 0x66, 0x6A, 0x7C, 0x68, 0x7D, 0x7B, 
+  0x66, 0x65, 0x68, 0x60]
+
+result = ''.join([chr(each ^ 0x9) for each in buffer])
+
+print(result)
