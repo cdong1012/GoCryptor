@@ -15,6 +15,10 @@ var OperatorPubKey = [32]byte{67, 78, 117, 70, 95, 48, 99, 15, 164, 175, 205, 17
 
 var SmallDataPubKey = [32]byte{228, 146, 2, 131, 232, 4, 66, 231, 5, 189, 21, 177, 122, 31, 28, 192, 228, 95, 74, 152, 57, 150, 237, 254, 201, 234, 47, 69, 189, 73, 9, 20}
 
+// TODO: Populate this
+type EncryptedFileFooter struct {
+}
+
 // Curve25519 generating public key from private key
 func generatePublicKey(privateKey [32]byte) [32]byte {
 	var publicKey [32]byte

