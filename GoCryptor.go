@@ -59,7 +59,6 @@ func main() {
 	if GoCryptorConfig.runOnceFlag {
 		mutexHandle, err = gow32.CreateMutex(string(GoCryptorConfig.runOnceString[:]))
 		if err != nil {
-			// fmt.Printf("Error: %d - %s\n", int(err.(syscall.Errno)), err.Error())
 			panic(err)
 		}
 	}

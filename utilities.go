@@ -166,7 +166,7 @@ func deleteShadowCopies() error {
 		}
 		_, err = oleutil.CallMethod(service, "DeleteInstance", shadowcopy_ID.ToString(), 0, 0, 0)
 		if err != nil {
-			fmt.Println("delete instance fails")
+			// fmt.Println("delete instance fails")
 			return err
 		}
 	}

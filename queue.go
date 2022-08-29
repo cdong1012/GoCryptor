@@ -77,8 +77,8 @@ func (queue *Queue) ToString() string {
 func testQueue() {
 	queue := newQueue()
 
-	queue.enqueue(newNode("Peter", nil, nil))
-	queue.enqueue(newNode("Anna", nil, nil))
+	queue.enqueue(newNode("ya", nil, nil))
+	queue.enqueue(newNode("yeet", nil, nil))
 	fmt.Println(queue.ToString())
 	fmt.Println(queue.dequeue())
 	fmt.Println(queue.dequeue())
@@ -88,7 +88,7 @@ func testQueue() {
 	fmt.Println(queue.dequeue())
 
 	// one node
-	queue.enqueue(newNode("Peter", nil, nil))
+	queue.enqueue(newNode("ya", nil, nil))
 	fmt.Println(queue.dequeue())
 	fmt.Println(queue.ToString())
 }
