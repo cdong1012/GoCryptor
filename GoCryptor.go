@@ -18,7 +18,7 @@ func main() {
 	password := flag.String("pass", "", "Password for cryptor")
 	flag.Parse()
 
-	if *password != "yeet" {
+	if bufferHashing([]byte(*password)) != 0x752e29f1 {
 		return
 	}
 
@@ -75,6 +75,4 @@ func main() {
 }
 
 // Things to do:
-// - Command line arguments
-// Pre-Encryption:
 // - Multithreading
