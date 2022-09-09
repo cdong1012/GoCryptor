@@ -14,11 +14,11 @@ The project strictly as serves as a proof-of-concept created for educational pur
 
 As the author, I am not to be held responsible for any damage as a direct or indirect result of this software.
 
-## Table of Contents ()
+## Table of Content
 
 - [GoCryptor (GoCrypt)](#gocryptor-gocrypt)
   - [Description](#description)
-  - [Table of Contents ()](#table-of-contents-)
+  - [Table of Content](#table-of-content)
   - [Installation](#installation)
   - [Usage](#usage)
   - [Credits](#credits)
